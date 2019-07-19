@@ -115,11 +115,15 @@ function email_IsValid($email) {
     // Does email pass dns check?
     ///////////////////////////////////////////////////////////////////////
     //
-    $domain = idn_to_ascii(ltrim(stristr($email, '@'), '@') . '.', 0, INTL_IDNA_VARIANT_UTS46);
-    //
-    if ( !checkdnsrr($domain, 'ANY') ) {
+    if (function_exists('idn_to_ascii') && defined('INTL_IDNA_VARIANT_UTS46')) {
         //
-        return false;
+        $domain = idn_to_ascii(ltrim(stristr($email, '@'), '@') . '.', 0, INTL_IDNA_VARIANT_UTS46);
+        //
+        if ( !checkdnsrr($domain, 'ANY') ) {
+            //
+            return false;
+            //
+        }
         //
     }
     //
