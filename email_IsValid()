@@ -1,0 +1,128 @@
+/**
+ *
+ * Validate an email address
+ *
+ * @author John B. Abela <github:johnabela>
+ * @copyright 2019 https://4cm.com/
+ * @created July 18, 2019
+ * @version 1.0.0
+ * @see https://gist.github.com/johnabela/9a41191e9946ed59addae447b3c72206
+ * @param $email
+ * @return bool
+ * @usage if ( !email_IsValid($Email) ) { die('The email address you entered does not appear to be a valid email address.'); }
+*/
+function email_IsValid($email) {
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////
+    //	Kill some email injection methods.
+    //	The following characters are never used in an email address and are
+    //	only used for email injections, which is vital we kill.
+    ///////////////////////////////////////////////////////////////////////
+    //
+    $email = str_replace(';','', $email);  // Kill: Multiple Email Addresses
+    $email = str_replace(',','', $email);  // Kill: Multiple Email Addresses
+    $email = str_replace(' ','', $email);  // Kill: Spaces don't belong in emails
+    $email = str_replace(':','', $email);  // Kill: Content-Type:multipart/mixed & header:
+    $email = str_replace('/','', $email);  // Kill: Content-Type:multipart/mixed
+    $email = str_replace('=','', $email);  // Kill: boundary=
+    $email = str_replace('%','', $email);  // Kill: Carriage return (such as 0x0D/%0D in hexadecimal)
+    $email = str_replace('\r','', $email); // Kill: Carriage returns
+    $email = str_replace('\n','', $email); // Kill: Carriage returns
+    $email = str_replace('&','', $email);  // Kill: @ character translation (such as &#64;)
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////
+    //	Correct common tld typos
+    ///////////////////////////////////////////////////////////////////////
+    //
+    if ( substr($email, -3) == 'cmo' ) {
+        //
+        $email = substr($email, 0, -3) . 'com';
+        //
+    }
+    elseif ( substr($email, -3) == 'moc' ) {
+        //
+        $email = substr($email, 0, -3) . 'com';
+        //
+    }
+    elseif ( substr($email, -3) == 'ocm' ) {
+        //
+        $email = substr($email, 0, -3) . 'com';
+        //
+    }
+    elseif ( substr($email, -3) == 'nte' ) {
+        //
+        $email = substr($email, 0, -3) . 'net';
+        //
+    }
+    elseif ( substr($email, -3) == 'etn' ) {
+        //
+        $email = substr($email, 0, -3) . 'net';
+        //
+    }
+    elseif ( substr($email, -3) == 'ogr' ) {
+        //
+        $email = substr($email, 0, -3) . 'org';
+        //
+    }
+    elseif ( substr($email, -3) == 'rog' ) {
+        //
+        $email = substr($email, 0, -3) . 'org';
+        //
+    }
+    elseif ( substr($email, -3) == 'gor' ) {
+        //
+        $email = substr($email, 0, -3) . 'org';
+        //
+    }
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////
+    //	Does email address have a @ and . symbol?
+    ///////////////////////////////////////////////////////////////////////
+    //
+    if ((strpos($email,'@') === false) || (strpos($email,'.') === false)) {
+        //
+        return false;
+        //
+    }
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////
+    //  Does email address have text between @ and .
+    ///////////////////////////////////////////////////////////////////////
+    //
+    if (!trim(strstr(strstr($email,'@'),'.',true),'@.')) {
+        //
+        return false;
+        //
+    }
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////
+    //  Does email address have text after period
+    ///////////////////////////////////////////////////////////////////////
+    //
+    if ( !explode('.', substr($email, strrpos($email, '@')+1))[1] ) {
+        //
+        return false;
+        //
+    }
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////
+    // Does email pass dns check?
+    ///////////////////////////////////////////////////////////////////////
+    //
+    $domain = idn_to_ascii(ltrim(stristr($email, '@'), '@') . '.', 0, INTL_IDNA_VARIANT_UTS46);
+    //
+    if ( !checkdnsrr($domain, 'ANY') ) {
+        //
+        return false;
+        //
+    }
+    //
+    return true;
+    //
+}
